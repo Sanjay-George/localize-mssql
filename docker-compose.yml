@@ -1,0 +1,20 @@
+name: container-validation-db
+services:
+  app:
+    profiles:
+      - install
+    build: .
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      # TODO: Configure health check on db and add condition 
+      # https://docs.docker.com/compose/compose-file/05-services/#long-syntax-1
+  
+  db: 
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - "SA_PASSWORD=${DB_PASSWORD}"
+      - "ACCEPT_EULA=Y"
+    ports:
+      - "1433:1433"
