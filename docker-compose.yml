@@ -2,7 +2,7 @@ name: container-validation-db
 services:
   app:
     profiles:
-      - install
+      - init
     build: .
     volumes:
       - .:/app
