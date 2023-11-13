@@ -2,10 +2,7 @@ const sql = require('mssql');
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
-const { populate } = require('dotenv');
 require('dotenv').config();
-
-// Read the SQL commands from the setup.sql file
 
 const RETRIES = 10;
 let pool = null;
@@ -14,13 +11,13 @@ let pool = null;
 const config = {
     user: 'SA',
     password: process.env['DB_PASSWORD'],
-    server: 'db', // Use the name of the service. Localhost won't work with docker compose (since different IPs)
+    server: 'db', // Name of the service in the docker-compose.yml
     database: 'master',
     authentication: {
         type: "default",
     },
     options: {
-        encrypt: false // Use this if you're on Windows Azure
+        encrypt: false
     }
 };
 
@@ -59,9 +56,6 @@ async function populateTables() {
 
             const tableName = path.basename(fileName, '.csv')?.split('-')[1];
             const schemaName = subdirectory;
-
-            // TODO: Check if foreign key exists on the table. If so, skip this table and do it later
-
             fs.createReadStream(path.join(subdirectoryPath, fileName))
                 .pipe(csv())
                 .on('data', async (row) => {
