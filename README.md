@@ -1,4 +1,4 @@
-## Quick Start
+# Quick Start
 1. Install [Docker Engine](https://docs.docker.com/engine/install/)
 2. Clone and rename `.env.example` to `.env` and set all values.
 3. Clone and rename `data_example` folder to `data`. [Read the section below](#populating-the-data-folder) to understand how to populate this folder
@@ -10,6 +10,11 @@
 - For populating data, create a subdirectory with the schema name, and a csv file with table name.
     - Example: For a table `dbo.table1`, create a subdirectory `dbo` (inside the data folder) and a file `01-table1.csv`.
     - The numbering before table name ensures the order in which to execute the files. This helps with foreign key constraints.
+
+## Issues
+### MSSQL image incompatibility with ARM devices
+[MSSQL image from Microsoft](https://hub.docker.com/_/microsoft-mssql-server) does not support ARM64 architecture (Apple Silicon devices will be affected). Follow [this blog](https://devblogs.microsoft.com/azure-sql/development-with-sql-in-containers-on-macos/) for a workaround. The workaround is to use Rosetta (included in Docker engine) for emulating amd64 images.
+
 
 ## Todo
 
