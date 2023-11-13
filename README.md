@@ -1,3 +1,6 @@
+# localize-mssql
+This repo contains a docker-based solution to containerize and run MSSQL with automated creation of schemas and tables, and population of data from CSVs files. This helps with having a predefined copy of your application's database, which helps with local devleopment, end-to-end testing, etc. 
+
 # Quick Start
 1. Install [Docker Engine](https://docs.docker.com/engine/install/)
 2. Clone and rename `.env.example` to `.env` and set all values.
