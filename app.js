@@ -55,6 +55,11 @@ async function populateTables() {
             }
 
             const tableName = path.basename(fileName, '.csv')?.split('-')[1];
+            if (!tableName) {
+                console.error(`Invalid file name: ${fileName}. Expected format: [0-9]+-[A-Za-z0-9]+.csv (Eg: 1-table1.csv)`)
+                continue;
+            }
+
             const schemaName = subdirectory;
             fs.createReadStream(path.join(subdirectoryPath, fileName))
                 .pipe(csv())
