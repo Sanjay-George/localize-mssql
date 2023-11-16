@@ -5,8 +5,8 @@ This repo contains a docker-based solution to containerize and run MSSQL with au
 1. Install [Docker Engine](https://docs.docker.com/engine/install/)
 2. Clone and rename `.env.example` to `.env` and set all values.
 3. Populate `data` folder. [Read the section below](#populating-the-data-folder) to understand how to populate this folder
-4. To create a fresh copy of all tables and data, run `docker compose --profile init up -d` to initialize the mssql server and run all SQL scripts and insert statements.
-5. To only start the database, run `docker compose start` to just start the already initialized mssql server.
+4. To create a fresh copy of all tables and data, run `docker compose --profile init up -d`. This will initialize the mssql server and run all SQL scripts and insert statements.
+5. To simply start the already initialized database, run `docker compose start`. Alternatively, use Docker desktop to start the service (will be named `db-1`).
 6. Once the tables have been populated with the test data, commit the changes to create a new image `docker commit <container-id> <app-name>:<tag>`.
 
 The created image (which runs MSSQL server with preconfigured test data) can now be used across your dev and testing environments! And this solution works easily with CI too! 
