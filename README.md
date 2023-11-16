@@ -1,5 +1,5 @@
 # localize-mssql
-This repo contains a docker-based solution to containerize and run MSSQL with automated creation of schemas and tables, and population of data from CSVs files. This helps with having a predefined copy of your application's database, which helps with local devleopment, end-to-end testing, etc. 
+This repo contains a docker-based solution to containerize and run MSSQL with automated creation of schemas and tables, and population of data from CSVs files. This helps with having a predefined copy of your application's database, which helps with local devleopment, end-to-end testing, etc.
 
 # Quick Start
 1. Install [Docker Engine](https://docs.docker.com/engine/install/)
@@ -7,6 +7,9 @@ This repo contains a docker-based solution to containerize and run MSSQL with au
 3. Populate `data` folder. [Read the section below](#populating-the-data-folder) to understand how to populate this folder
 4. To create a fresh copy of all tables and data, run `docker compose --profile init up -d` to initialize the mssql server and run all SQL scripts and insert statements.
 5. To only start the database, run `docker compose start` to just start the already initialized mssql server.
+6. Once the tables have been populated with the test data, commit the changes to create a new image `docker commit <container-id> <app-name>:<tag>`.
+
+The created image (which runs MSSQL server with preconfigured test data) can now be used across your dev and testing environments! And this solution works easily with CI too! 
 
 ### Populating the data folder
 - Add all DDL (CREATE/ALTER) statements inside `data/init.sql`. 
