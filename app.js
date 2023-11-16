@@ -38,6 +38,44 @@ async function createTables() {
     }
 }
 
+const processFile = async (fileName, subdirectoryPath, subdirectory) => {
+    return new Promise((resolve, reject) => {
+        const tableName = path.basename(fileName, '.csv')?.split('-')[1];
+        if (!tableName) {
+            console.error(`Invalid file name: ${fileName}. Expected format: [0-9]+-[A-Za-z0-9]+.csv (Eg: 1-table1.csv)`)
+            resolve();
+            return;
+        }
+
+        const schemaName = subdirectory;
+        fs.createReadStream(path.join(subdirectoryPath, fileName))
+            .pipe(csv())
+            .on('data', async (row) => {
+                const columns = Object.keys(row).join(', ');
+                const values = Object.values(row).map(value => `'${value}'`).join(', ');
+                const query = `
+                    SET IDENTITY_INSERT ${schemaName}.${tableName} ON;
+                    INSERT INTO ${schemaName}.${tableName} (${columns}) VALUES (${values})
+                    SET IDENTITY_INSERT ${schemaName}.${tableName} OFF;
+                `;
+
+                try {
+                    await pool.request().query(query);
+                } catch (err) {
+                    console.error(err);
+                }
+            })
+            .on('end', () => {
+                console.log(`CSV file ${subdirectoryPath}/${fileName} successfully processed`);
+                resolve();
+            })
+            .on('error', (err) => {
+                console.error(`Error processing file ${subdirectoryPath}/${fileName}: ${err}`);
+                reject(err);
+            });
+    });
+}
+
 async function populateTables() {
     const directoryPath = path.join(__dirname, 'data');
     const subdirectories = fs.readdirSync(directoryPath);
@@ -47,40 +85,12 @@ async function populateTables() {
         if (!fs.statSync(subdirectoryPath).isDirectory()) {
             continue;
         }
-
         const fileNames = fs.readdirSync(subdirectoryPath);
         for (const fileName of fileNames.sort()) {
             if (path.extname(fileName) !== '.csv') {
                 continue;
             }
-
-            const tableName = path.basename(fileName, '.csv')?.split('-')[1];
-            if (!tableName) {
-                console.error(`Invalid file name: ${fileName}. Expected format: [0-9]+-[A-Za-z0-9]+.csv (Eg: 1-table1.csv)`)
-                continue;
-            }
-
-            const schemaName = subdirectory;
-            fs.createReadStream(path.join(subdirectoryPath, fileName))
-                .pipe(csv())
-                .on('data', async (row) => {
-                    const columns = Object.keys(row).join(', ');
-                    const values = Object.values(row).map(value => `'${value}'`).join(', ');
-                    const query = `
-                        SET IDENTITY_INSERT ${schemaName}.${tableName} ON;
-                        INSERT INTO ${schemaName}.${tableName} (${columns}) VALUES (${values})
-                        SET IDENTITY_INSERT ${schemaName}.${tableName} OFF;
-                    `;
-
-                    try {
-                        await pool.request().query(query);
-                    } catch (err) {
-                        console.error(err);
-                    }
-                })
-                .on('end', () => {
-                    console.log(`CSV file ${subdirectoryPath}/${fileName} successfully processed`);
-                });
+            await processFile(fileName, subdirectoryPath, subdirectory);
         }
     }
 }
