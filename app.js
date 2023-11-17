@@ -38,6 +38,26 @@ async function createTables() {
     }
 }
 
+function isDate(dateString) {
+    const date = new Date(dateString);
+    return !isNaN(date);
+}
+
+function isNumber(numberString) {
+    return !isNaN(numberString);
+}
+
+function isNull(value) {
+    return value === 'NULL';
+}
+
+const mapCSVValue = (value) => {
+    if (value === '') return `''`;
+    if(isNull(value)) return value;
+    if(isNumber(value)) return value; 
+    return `'${value.replace(/'/g, "''") }'`;
+}
+
 const processFile = async (fileName, subdirectoryPath, subdirectory) => {
     return new Promise((resolve, reject) => {
         const tableName = path.basename(fileName, '.csv')?.split('-')[1];
@@ -47,22 +67,23 @@ const processFile = async (fileName, subdirectoryPath, subdirectory) => {
             return;
         }
 
+        console.log(`Processing file ${subdirectoryPath}/${fileName}...`);
         const schemaName = subdirectory;
         fs.createReadStream(path.join(subdirectoryPath, fileName))
             .pipe(csv())
             .on('data', async (row) => {
                 const columns = Object.keys(row).join(', ');
-                const values = Object.values(row).map(value => `'${value}'`).join(', ');
+                const values = Object.values(row).map(mapCSVValue).join(', ');
                 const query = `
                     SET IDENTITY_INSERT ${schemaName}.${tableName} ON;
-                    INSERT INTO ${schemaName}.${tableName} (${columns}) VALUES (${values})
+                    INSERT INTO ${schemaName}.${tableName} (${columns}) VALUES (${values});
                     SET IDENTITY_INSERT ${schemaName}.${tableName} OFF;
                 `;
-
                 try {
                     await pool.request().query(query);
                 } catch (err) {
                     console.error(err);
+                    console.info(`Errored query: ${query}`);
                 }
             })
             .on('end', () => {
