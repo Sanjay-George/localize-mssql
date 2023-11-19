@@ -31,6 +31,6 @@ The created image (which runs MSSQL server with preconfigured test data) can now
 [MSSQL image from Microsoft](https://hub.docker.com/_/microsoft-mssql-server) does not support ARM64 architecture (Apple Silicon devices will be affected). Follow [this blog](https://devblogs.microsoft.com/azure-sql/development-with-sql-in-containers-on-macos/) for a workaround. The workaround is to use Rosetta (included in Docker engine) for emulating amd64 images.
 
 
-# References
+# References 📃
 - [Docker Commit](https://docs.docker.com/engine/reference/commandline/commit/)
 - [SQL Server Docker Image](https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16)
