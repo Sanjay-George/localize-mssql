@@ -10,9 +10,9 @@ let pool = null;
 // SQL Server connection string
 const config = {
     user: 'SA',
-    password: process.env['DB_PASSWORD'],
     server: 'db', // Name of the service in the docker-compose.yml
-    database: 'master',
+    database: process.env['DB_NAME'],
+    password: process.env['DB_PASSWORD'],
     authentication: {
         type: "default",
     },
