@@ -12,19 +12,25 @@ This repo contains a docker-based solution to containerize and run MSSQL with au
 
 The created image (which runs MSSQL server with preconfigured test data) can now be used across your dev and testing environments! And this solution works easily with CI too! 
 
-### Commands
-| Description | Command |
+## Commands
+| Command | Description |
 | --- | --- |
-| Initialize MS SQL server, create all tables and schemas, <br/> populate tables with data. (This will also keep the server running)   | docker compose --profile init up -d |
-| Stop the server | docker compose stop |
-| Start the MS SQL server (if initiialization was already done) | docker compose start |
+| docker compose --profile init up -d | Initialize MS SQL server, create all tables and schemas, <br/> populate tables with data. (This will also keep the server running) |
+| docker compose stop | Stop the server |
+| docker compose start | Start the MS SQL server (if initiialization was already done) |
+| docker commit \<container-id> \<app-name>:\<tag> | Commit the sql server to create an image with the populated data |
 
-### Populating the data folder
+## Populating the data folder
 - Add all DDL statements inside `data/init.sql`. 
 - For populating data, create a subdirectory with the schema name, and a csv file with table name.
     - Example: For a table `dbo.table1`, create a subdirectory `dbo` (inside the data folder) and a file `01-table1.csv`.
     - The numbering before table name ensures the order in which to execute the files. This helps with foreign key constraints.
 
-## Issues ⚠️
+# Issues ⚠️
 ### MSSQL image incompatibility with ARM devices
 [MSSQL image from Microsoft](https://hub.docker.com/_/microsoft-mssql-server) does not support ARM64 architecture (Apple Silicon devices will be affected). Follow [this blog](https://devblogs.microsoft.com/azure-sql/development-with-sql-in-containers-on-macos/) for a workaround. The workaround is to use Rosetta (included in Docker engine) for emulating amd64 images.
+
+
+# References
+- [Docker Commit](https://docs.docker.com/engine/reference/commandline/commit/)
+- [SQL Server Docker Image](https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16)
