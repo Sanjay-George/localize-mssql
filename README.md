@@ -1,14 +1,15 @@
 # localize-mssql
-This repo contains a docker-based solution to containerize and run MSSQL with automated creation of schemas and tables, and population of data from CSV files. This helps with creating a predefined copy of an application's database, which can help with local devleopment, end-to-end testing, etc. This is not a tool per se, but rather a template or a solution using existing tools like docker.
+This repo contains a docker-based solution to containerize and run Microsoft SQL with automated creation of schemas and tables, and population of data from CSV files. This helps with creating a predefined copy of an application's database, which can help with local development, end-to-end testing, etc. This is not a tool per se, but rather a template or a solution using existing tools like docker.
  
 # Quick Start 🚀
 1. Install [Docker Engine](https://docs.docker.com/engine/install/)
-2. Clone and rename `.env.example` to `.env` and set all values.
-3. Populate `data` folder. [Read the section below](#populating-the-data-folder) to understand how to populate this folder
-4. (Optional): Rename `name` inside `docker-compose.yml` to rename the docker compose project name. Default is `localize-mssql`.
-5. To create a fresh copy of all tables and data, run `docker compose --profile init up -d`. This will initialize the mssql server and run all SQL scripts and insert statements.
-6. To simply start the already initialized database, run `docker compose start`. Alternatively, use Docker desktop to start the service (will be named `db-1`).
-7. Once the tables have been populated with the test data, commit the changes to create a new image `docker commit <container-id> <app-name>:<tag>`.
+2. Fork or clone this repo
+3. Duplicate and rename `.env.example` file to `.env` and set all values.
+4. Populate `data` folder. [Read the section below](#populating-the-data-folder) to understand how to populate this folder
+5. (Optional): Rename `name` inside [docker-compose.yml](https://github.com/Sanjay-George/localize-mssql/blob/06dec3986962da9ca33f85e6967a88870b6c0b85/docker-compose.yml#L1) to your project/app name. Default is `localize-mssql`.
+6. To create a fresh copy of all tables and data, run `docker compose --profile init up -d`. This will initialize the mssql server and run all SQL scripts and insert statements.
+7. To simply start the already initialized database, run `docker compose start`. Alternatively, use Docker desktop to start the service (will be named `db-1`).
+8. Once the tables have been populated with the test data, commit the changes to create a new image `docker commit <container-id> <app-name>:<tag>`.
 
 The created image (which runs MSSQL server with preconfigured test data) can now be used across your dev and testing environments! And this solution works easily with CI too! 
 
