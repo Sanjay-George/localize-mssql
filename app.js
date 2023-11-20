@@ -81,6 +81,10 @@ const processFile = async (fileName, subdirectoryPath, subdirectory) => {
                 `;
                 try {
                     await pool.request().query(query);
+                    if (process.env['SHOULD_GENERATE_SQL'] === 'true') {
+                        const fileNameWithoutExtension = path.basename(fileName, path.extname(fileName));
+                        fs.appendFileSync(path.join(subdirectoryPath,`${fileNameWithoutExtension}.sql`), query);
+                    }
                 } catch (err) {
                     console.error(err);
                     console.info(`Errored query: ${query}`);
