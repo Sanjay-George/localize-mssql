@@ -22,25 +22,25 @@ const config = {
 };
 
 async function createTables() {
-    const sqlCommands = fs.readFileSync(path.join(__dirname, 'data', 'init.sql'), 'utf8').split(';');
-    for (const command of sqlCommands) {
-        // Skip if command is empty
-        if (command.trim() === '') {
-            continue;
-        }
-        try {
-            await pool.request().query(command);
-        } catch (err) {
-            console.log(err);
-            continue;
-        }
+    try {
+        const sqlCommands = fs.readFileSync(path.join(__dirname, 'data', 'init.sql'), 'utf8').split(';');
+        for (const command of sqlCommands) {
+            // Skip if command is empty
+            if (command.trim() === '') {
+                continue;
+            }
+            try {
+                await pool.request().query(command);
+            } catch (err) {
+                console.log(err);
+                continue;
+            }
 
+        }
+    } catch (error) {
+        console.error(error);
     }
-}
 
-function isDate(dateString) {
-    const date = new Date(dateString);
-    return !isNaN(date);
 }
 
 function isNumber(numberString) {
@@ -53,9 +53,9 @@ function isNull(value) {
 
 const mapCSVValue = (value) => {
     if (value === '') return `''`;
-    if(isNull(value)) return value;
-    if(isNumber(value)) return value; 
-    return `'${value.replace(/'/g, "''") }'`;
+    if (isNull(value)) return value;
+    if (isNumber(value)) return value;
+    return `'${value.replace(/'/g, "''")}'`;
 }
 
 const processFile = async (fileName, subdirectoryPath, subdirectory) => {
@@ -75,15 +75,25 @@ const processFile = async (fileName, subdirectoryPath, subdirectory) => {
                 const columns = Object.keys(row).join(', ');
                 const values = Object.values(row).map(mapCSVValue).join(', ');
                 const query = `
-                    SET IDENTITY_INSERT ${schemaName}.${tableName} ON;
+                    BEGIN TRY
+                        SET IDENTITY_INSERT ${schemaName}.${tableName} ON;
+                    END TRY
+                    BEGIN CATCH
+                    END CATCH
+
                     INSERT INTO ${schemaName}.${tableName} (${columns}) VALUES (${values});
-                    SET IDENTITY_INSERT ${schemaName}.${tableName} OFF;
+
+                    BEGIN TRY
+                        SET IDENTITY_INSERT ${schemaName}.${tableName} OFF;
+                    END TRY
+                    BEGIN CATCH
+                    END CATCH
                 `;
                 try {
                     await pool.request().query(query);
                     if (process.env['SHOULD_GENERATE_SQL'] === 'true') {
                         const fileNameWithoutExtension = path.basename(fileName, path.extname(fileName));
-                        fs.appendFileSync(path.join(subdirectoryPath,`${fileNameWithoutExtension}.sql`), query);
+                        fs.appendFileSync(path.join(subdirectoryPath, `${fileNameWithoutExtension}.sql`), query);
                     }
                 } catch (err) {
                     console.error(err);
@@ -102,21 +112,25 @@ const processFile = async (fileName, subdirectoryPath, subdirectory) => {
 }
 
 async function populateTables() {
-    const directoryPath = path.join(__dirname, 'data');
-    const subdirectories = fs.readdirSync(directoryPath);
+    try {
+        const directoryPath = path.join(__dirname, 'data');
+        const subdirectories = fs.readdirSync(directoryPath);
 
-    for (const subdirectory of subdirectories) {
-        const subdirectoryPath = path.join(directoryPath, subdirectory);
-        if (!fs.statSync(subdirectoryPath).isDirectory()) {
-            continue;
-        }
-        const fileNames = fs.readdirSync(subdirectoryPath);
-        for (const fileName of fileNames.sort()) {
-            if (path.extname(fileName) !== '.csv') {
+        for (const subdirectory of subdirectories) {
+            const subdirectoryPath = path.join(directoryPath, subdirectory);
+            if (!fs.statSync(subdirectoryPath).isDirectory()) {
                 continue;
             }
-            await processFile(fileName, subdirectoryPath, subdirectory);
+            const fileNames = fs.readdirSync(subdirectoryPath);
+            for (const fileName of fileNames.sort()) {
+                if (path.extname(fileName) !== '.csv') {
+                    continue;
+                }
+                await processFile(fileName, subdirectoryPath, subdirectory);
+            }
         }
+    } catch (error) {
+        console.error(error);
     }
 }
 
