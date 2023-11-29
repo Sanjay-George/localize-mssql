@@ -6,6 +6,7 @@ services:
     build: .
     volumes:
       - ./data:/app/data
+      - .env:/app/.env
     depends_on:
       - db
       # TODO: Configure health check on db and add condition 
