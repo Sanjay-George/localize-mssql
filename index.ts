@@ -6,8 +6,8 @@ require('dotenv').config();
 
 const RETRIES = 10;
 
-// SQL Server connection string
-const initConfig = {
+// Connection config for the default master database
+const masterDBConfig = {
     user: 'SA',
     server: 'db', // Name of the service in the docker-compose.yml
     port: 1433,
@@ -22,7 +22,8 @@ const initConfig = {
     }
 };
 
-const config = {
+// Connection config for the custom database created
+const customDBConfig = {
     user: 'SA',
     server: 'db', // Name of the service in the docker-compose.yml
     database: process.env['DB_NAME'],
@@ -106,6 +107,7 @@ const processFile = async (pool, fileName, subdirectoryPath, subdirectory): Prom
 
         console.log(`Processing file ${subdirectoryPath}/${fileName}...`);
         const schemaName = subdirectory;
+        const db = process.env['DB_NAME'];
         fs.createReadStream(path.join(subdirectoryPath, fileName))
             .pipe(csv())
             .on('data', async (row) => {
@@ -113,15 +115,15 @@ const processFile = async (pool, fileName, subdirectoryPath, subdirectory): Prom
                 const values = Object.values(row).map(mapCSVValue).join(', ');
                 const query = `
                     BEGIN TRY
-                        SET IDENTITY_INSERT ${schemaName}.${tableName} ON;
+                        SET IDENTITY_INSERT ${db}.${schemaName}.${tableName} ON;
                     END TRY
                     BEGIN CATCH
                     END CATCH
 
-                    INSERT INTO ${schemaName}.${tableName} (${columns}) VALUES (${values});
+                    INSERT INTO ${db}.${schemaName}.${tableName} (${columns}) VALUES (${values});
 
                     BEGIN TRY
-                        SET IDENTITY_INSERT ${schemaName}.${tableName} OFF;
+                        SET IDENTITY_INSERT ${db}.${schemaName}.${tableName} OFF;
                     END TRY
                     BEGIN CATCH
                     END CATCH
@@ -173,9 +175,12 @@ async function populateTables(pool) {
 
 async function connectToDB(retryLeft) {
     try {
-        const initPool = await sql.connect(initConfig);
-        await processDDLs(initPool);
-        // await populateTables();
+
+        const masterPool = await sql.connect(masterDBConfig);
+        await processDDLs(masterPool);
+
+        const pool = await sql.connect(customDBConfig);
+        await populateTables(pool);
         console.log("Setup complete!");
     }
     catch (err) {
