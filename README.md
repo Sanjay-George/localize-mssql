@@ -7,8 +7,8 @@ This repo contains a docker-based solution to containerize and run Microsoft SQL
 3. Duplicate and rename `.env.example` file to `.env` and set all values.
 4. Populate `data` folder. [Read the section below](#populating-the-data-folder) to understand how to populate this folder
 5. (Optional): Rename `name` inside [docker-compose.yml](https://github.com/Sanjay-George/localize-mssql/blob/06dec3986962da9ca33f85e6967a88870b6c0b85/docker-compose.yml#L1) to your project/app name. Default is `localize-mssql`.
-6. To create a fresh copy of all tables and data, run `docker compose --profile init up -d`. This will initialize the mssql server and run all SQL scripts and insert statements.
-7. To simply start the already initialized database, run `docker compose start`. Alternatively, use Docker desktop to start the service (will be named `db-1`).
+6. Install all dependencies by running `npm install`
+7. To create a fresh copy of all tables and data, run `npm start`. This will initialize the MSSQL server and run all SQL scripts and insert statements.
 8. Once the tables have been populated with the test data, commit the changes to create a new image `docker commit <container-id> <app-name>:<tag>`.
 
 The created image (which runs MSSQL server with preconfigured test data) can now be used across your dev and testing environments! And this solution works easily with CI too! 
@@ -22,7 +22,8 @@ The created image (which runs MSSQL server with preconfigured test data) can now
 | docker commit \<container-id> \<app-name>:\<tag> | Commit the sql server to create an image with the populated data |
 
 ## Populating the data folder
-- Add all DDL statements inside `data/init.sql`. 
+- Add all DDL statements inside `data/__ddl__/`. Prefix with a number for ordering.
+    - Example: `01-fileA.sql` will be executed before `02-fileB.sql`  
 - For populating data, create a subdirectory with the schema name, and a csv file with table name.
     - Example: For a table `dbo.table1`, create a subdirectory `dbo` (inside the data folder) and a file `01-table1.csv`.
     - The numbering before table name ensures the order in which to execute the files. This helps with foreign key constraints.
