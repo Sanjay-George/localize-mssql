@@ -1,4 +1,4 @@
-name: localize-mssql
+name: static-eta
 services:
   app:
     profiles:

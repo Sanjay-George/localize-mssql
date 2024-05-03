@@ -6,6 +6,6 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY dist/ .
 
-CMD ["node", "app.js"]
+CMD ["node", "index.js"]

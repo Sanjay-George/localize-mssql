@@ -2,12 +2,16 @@
   "name": "container-validation-db",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "docker compose --profile init up -d --build --force-recreate"
   },
   "dependencies": {
     "csv-parser": "^3.0.0",
@@ -15,5 +19,10 @@
     "mssql": "^9.1.1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.8",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5"
+  }
 }
