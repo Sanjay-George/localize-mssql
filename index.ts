@@ -1,5 +1,6 @@
 const sql = require('mssql');
 const fs = require('fs');
+const fsp = require('node:fs/promises');
 const path = require('path');
 const csv = require('csv-parser');
 require('dotenv').config();
@@ -7,9 +8,10 @@ require('dotenv').config();
 const RETRIES = 10;
 
 // Connection config for the default master database
+// Only used to create the custom database and tables
 const masterDBConfig = {
     user: 'SA',
-    server: 'db', // Name of the service in the docker-compose.yml
+    server: 'localhost', // Name of the service in the docker-compose.yml
     port: 1433,
     database: 'master',
     password: process.env['DB_PASSWORD'],
@@ -25,7 +27,7 @@ const masterDBConfig = {
 // Connection config for the custom database created
 const customDBConfig = {
     user: 'SA',
-    server: 'db', // Name of the service in the docker-compose.yml
+    server: 'localhost', // Name of the service in the docker-compose.yml
     database: process.env['DB_NAME'],
     password: process.env['DB_PASSWORD'],
     authentication: {
@@ -42,7 +44,7 @@ const customDBConfig = {
 async function processDDLs(pool): Promise<boolean> {
     try {
         const directoryPath = path.join(__dirname, 'data', '__ddl__');
-        const fileNames = fs.readdirSync(directoryPath);
+        const fileNames = await fsp.readdir(directoryPath);
 
         // Validate file names
         const regex = /^[0-9]+-[A-Za-z0-9]+.sql$/;
@@ -62,7 +64,7 @@ async function processDDLs(pool): Promise<boolean> {
         // execute sql commands in the files
         for (const fileName of fileNames) {
             const filePath = path.join(directoryPath, fileName);
-            const sqlCommands = fs.readFileSync(filePath, 'utf8').split(';');
+            const sqlCommands = (await fsp.readFile(filePath, 'utf8')).split(';');            
             for (const command of sqlCommands) {
                 // Skip if command is empty
                 if (command.trim() === '') {
@@ -132,7 +134,7 @@ const processFile = async (pool, fileName, subdirectoryPath, subdirectory): Prom
                     await pool.request().query(query);
                     if (process.env['SHOULD_GENERATE_SQL'] === 'true') {
                         const fileNameWithoutExtension = path.basename(fileName, path.extname(fileName));
-                        fs.appendFileSync(path.join(subdirectoryPath, `${fileNameWithoutExtension}.sql`), query);
+                        await fsp.appendFile(path.join(subdirectoryPath, `${fileNameWithoutExtension}.sql`), query);
                     }
                 } catch (err) {
                     console.error(err);
@@ -153,14 +155,14 @@ const processFile = async (pool, fileName, subdirectoryPath, subdirectory): Prom
 async function populateTables(pool) {
     try {
         const directoryPath = path.join(__dirname, 'data');
-        const subdirectories = fs.readdirSync(directoryPath);
+        const subdirectories = await fsp.readdir(directoryPath);
 
         for (const subdirectory of subdirectories) {
             const subdirectoryPath = path.join(directoryPath, subdirectory);
-            if (!fs.statSync(subdirectoryPath).isDirectory()) {
+            if (!(await fsp.stat(subdirectoryPath)).isDirectory()) {
                 continue;
             }
-            const fileNames = fs.readdirSync(subdirectoryPath);
+            const fileNames = await fsp.readdir(subdirectoryPath);
             for (const fileName of fileNames.sort()) {
                 if (path.extname(fileName) !== '.csv') {
                     continue;
