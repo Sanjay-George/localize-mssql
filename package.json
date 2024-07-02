@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "dev": "docker compose -p dev up -d && ts-node index.ts",
     "build": "tsc",
     "watch": "tsc -w",
     "clean": "rimraf dist",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@types/node": "^20.12.8",
     "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }
 }
