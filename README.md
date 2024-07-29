@@ -18,7 +18,7 @@ The created image (which runs MSSQL server with preconfigured test data) can now
 ## Commands
 | Command | Description |
 | --- | --- |
-| docker compose --profile init up -d --build --force-recreate | Initialize MS SQL server, create all tables and schemas, <br/> populate tables with data. It builds the image and forces the creation of container even if it already exists |
+| docker compose up -d --build --force-recreate | Initialize MS SQL server, create all tables and schemas, <br/> populate tables with data. It builds the image and forces the creation of container even if it already exists |
 | docker compose stop | Stop the server |
 | docker compose start | Start the MS SQL server (if initiialization was already done) |
 | docker commit \<container-id> \<app-name>:\<tag> | Commit the sql server to create an image with the populated data |
