@@ -11,9 +11,6 @@ This repo contains a docker-based solution to containerize and run Microsoft SQL
 6. (Optional): Rename `name` inside [docker-compose.yml](https://github.com/Sanjay-George/localize-mssql/blob/06dec3986962da9ca33f85e6967a88870b6c0b85/docker-compose.yml#L1) to your project/app name. Default is `localize-mssql`.
 7. Install all dependencies by running `npm install`
 8. To create a fresh copy of all tables and data, run `npm start`. This will initialize the MSSQL server and run all SQL scripts and insert statements.
-9. Once the tables have been populated with the test data, commit the changes to create a new image `docker commit <container-id> <app-name>:<tag>`.
-
-The created image (which runs MSSQL server with preconfigured test data) can now be used across your dev and testing environments! And this solution works easily with CI too! 
 
 ## Commands
 | Command | Description |
