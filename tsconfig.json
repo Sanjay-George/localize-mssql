@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
+    "module": "ESNext",
+    "target": "ESNext",
     "outDir": "dist",
     "rootDir": ".",
     "sourceMap": true,
@@ -10,6 +10,10 @@
     "esModuleInterop": true,
     "composite": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "allowUnreachableCode": false,
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "allowJs": true
   }
 }
